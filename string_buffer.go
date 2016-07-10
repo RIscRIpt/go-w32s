@@ -1,7 +1,14 @@
 package w32s
 
-import "syscall"
+import (
+	"fmt"
+	"syscall"
+)
 
+// StringBuffer represents a []byte or []uint16 buffer,
+// if StringEncoding was set to Multibyte or Wide respectively.
+// It is specially designed for using in Win32 API procedure calls, which
+// require a string buffer and the buffer length as the parameters.
 type StringBuffer struct {
 	encoding StringEncoding
 	size     int
@@ -23,6 +30,7 @@ func newStrBuf(encoding StringEncoding, size int) (sb *StringBuffer) {
 	return
 }
 
+// Store copies specified string into the buffer.
 func (sb *StringBuffer) Store(value string) {
 	var bufLen int
 	if sb.encoding == Wide {
@@ -42,22 +50,28 @@ func (sb *StringBuffer) Store(value string) {
 	sb.size = bufLen
 }
 
+// Pointer returns a value which can be passed as a parameter to the Win32 API call.
 func (sb *StringBuffer) Pointer() interface{} {
 	return sb.buffer
 }
 
+// Size returns the buffer size.
 func (sb *StringBuffer) Size() int {
 	return sb.size
 }
 
+// SizePtr returns the pointer to the buffer size.
+// This pointer can be passed as the parameter to the Win32 API call.
 func (sb *StringBuffer) SizePtr() *int {
 	return &sb.size
 }
 
+// String returns a string which is stored in the buffer.
 func (sb *StringBuffer) String() string {
 	if sb.encoding == Wide {
-		return syscall.UTF16ToString(sb.buffer.([]uint16))
-	} else {
+		bytes := sb.buffer.([]uint16)[0:sb.size]
+		return syscall.UTF16ToString(bytes)
+	} else if sb.encoding == Multibyte {
 		bytes := sb.buffer.([]byte)[0:sb.size]
 		for i, v := range bytes {
 			if v == 0 {
@@ -66,5 +80,7 @@ func (sb *StringBuffer) String() string {
 			}
 		}
 		return string(bytes)
+	} else {
+		panic(fmt.Errorf("w32s: unsupported encoding type: %v", sb.encoding))
 	}
 }
