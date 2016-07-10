@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	// Success is the error code of a successfull Win32 API procedure call
+	// Success is the error code of a successful Win32 API procedure call
 	Success = syscall.Errno(0)
-	// ResultW32Error signals than an error occured before making Win32 API call
+	// ResultW32Error signals than an error occurred before making Win32 API call
 	ResultW32Error = ^uintptr(1337)
 )
 
@@ -55,7 +55,7 @@ func (w *W32s) SetEncoding(encoding StringEncoding) {
 }
 
 // LoadDLL loads specified DLL using syscall.LoadDLL (i.e. LoadLibraryW)
-// and returns an error if any occured during the syscall.LoadDLL
+// and returns an error if any occurred during the syscall.LoadDLL
 // Calling LoadDLL twice or on already loaded DLL has no effect.
 func (w *W32s) LoadDLL(name string) error {
 	if _, ok := w.dlls[name]; !ok {
@@ -69,7 +69,7 @@ func (w *W32s) LoadDLL(name string) error {
 }
 
 // ReleaseDLL releases specified DLL using syscall.DLL.Release (i.e. FreeLibrary)
-// and returns an error if any occured.
+// and returns an error if any occurred.
 // Calling ReleaseDLL twice or on a non-loaded DLL has no effect.
 func (w *W32s) ReleaseDLL(name string) error {
 	if dll, ok := w.dlls[name]; ok {
@@ -85,9 +85,9 @@ func (w *W32s) ReleaseDLL(name string) error {
 // passing specified parameters (`args`) to the procedure.
 //
 // The first return value `uintptr` is the return value of the procedure,
-// or the ResultW32Error value, if if any error occured before calling the procedure.
+// or the ResultW32Error value, if if any error occurred before calling the procedure.
 // The second return value `error` is either syscall.Errno([GetLastError()]), if the call succeeded,
-// or it's the error which occured before the call, if the first return value is ResultW32Error.
+// or it's the error which occurred before the call, if the first return value is ResultW32Error.
 func (w *W32s) Call(dllname, procname string, args ...interface{}) (uintptr, error) {
 	dll, ok := w.dlls[dllname]
 	if !ok {
